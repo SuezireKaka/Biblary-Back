@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.bible.library.party.mapper.PartyMapper">
+	<resultMap id="rmPartyVO" extends="nsEntity.rmEntity"
+		type="www.bible.library.party.model.PartyVO">
+		<result property="name" column="name" />
+		<result property="birthDate" column="birth" />
+		<!-- 1:N query. 성능 향상 -->
+		<collection property="contactPointList" columnPrefix="cp_"
+			resultMap="rmContactPointVO">
+		</collection>
+	</resultMap>
+
+	<resultMap id="rmPersonVO" extends="rmPartyVO"
+		type="www.bible.library.party.model.PersonVO" >
+		<result property="sex" column="sex" />
+	</resultMap>
+	
+	<resultMap id="rmOrganizationVO" extends="rmPartyVO"
+		type="www.bible.library.party.model.OrganizationVO" />
+
+	<resultMap id="rmContactPointVO"
+		type="www.bible.library.party.model.ContactPointVO">
+		<id property="cpType" column="cp_type" />
+		<result property="cpVal" column="cp_val" />
+	</resultMap>
+	
+	<resultMap id="rmAccountVO" extends="nsEntity.rmTimeEntity"
+		type="www.bible.library.party.model.AccountVO">
+		<result property="loginResultCode" column="login_code" />
+		<association property="owner" columnPrefix="own_"
+			resultMap="rmOrganizationVO" />
+		<association property="response" columnPrefix="rsp_"
+			resultMap="rmPersonVO" />
+		<!--  인가(Authorization) 처리를 위한 것임. -->
+		<collection property="roleList" columnPrefix="role_"
+			resultMap="rmRoleVO">
+		</collection>
+		<discriminator javaType="String" column="descrim">
+         	<case value="wonder" resultMap="rmWonderAccountVO" />
+         	<case value="kakao"
+         		resultMap="www.bible.library.oauth.mapper.KakaoMapper.rmKakaoAccountVO" />
+		</discriminator>
+	</resultMap>
+	
+	<resultMap id="rmWonderAccountVO" extends="rmAccountVO"
+		type="www.bible.library.party.model.WonderAccountVO">
+		<result property="loginId" column="login_id" />
+		<result property="passWord" column="pass_word" />
+		<result property="nick" column="nick" />
+		<result property="introduction" column="intro" />
+	</resultMap>
+	
+	<resultMap id="rmRoleVO"
+		type="www.bible.library.party.model.RoleVO">
+		<result property="role" column="role" />
+		<result property="manual" column="manual" />
+		<collection property="allowedActsList" columnPrefix="allow_"
+			resultMap="rmActVO">
+		</collection>
+	</resultMap>
+	
+	<resultMap id="rmActVO"
+		type="www.bible.library.party.model.ActVO">
+		<id property="action" column="action" />
+		<result property="manual" column="manual" />
+	</resultMap>
+
+	<!-- 	public List<AccountVO> listAllAccount(String ownerId, PagingDTO paging); -->
+	<select id="listAllAccount" resultMap="rmAccountVO">
+		SELECT SQL_CALC_FOUND_ROWS acc.*,
+			owner.id own_id, owner.name own_name,
+			rsp.id rsp_id, rsp.name rsp_name, rsp.birth rsp_birth, rsp.sex rsp_sex,
+			role.role role_role, role.account_id role_account_id,
+			acc.descrim rsp_acc_descrim
+		  FROM t_Account acc
+		  LEFT OUTER JOIN t_party owner
+		    on owner.id = acc.owner_id
+		  LEFT OUTER JOIN t_party rsp
+		    on rsp.id = acc.response_id
+		  LEFT OUTER JOIN t_role role
+		    on role.account_id = acc.id
+		 where acc.owner_id = #{ownerId}
+		 order by acc.id DESC
+		 limit #{paging.partyLimit} offset #{paging.offset};
+	</select>
+	
+	<!-- public List<ContactPointVO> listAllCpOf(@Param("ownerId") String ownerId); -->
+	<select id="listAllCpOf" resultMap="rmContactPointVO">
+		SELECT *
+		  from t_contact_point
+		 WHERE owner_id = #{ownerId}
+	</select>
+	
+	<!-- public AccountVO findByLoginId(String loginId); -->
+	<select id="findByLoginId" resultMap="rmWonderAccountVO">
+		SELECT acc.*, 
+			own.name own_name,
+			rsp.name rsp_name, rsp.birth rsp_birth, rsp.sex rsp_sex,
+			role.role role_role,
+			acc.descrim rsp_acc_descrim
+		  FROM T_Account acc
+		  LEFT OUTER JOIN t_role role
+		    on role.account_id = acc.id
+		  LEFT OUTER JOIN t_party own
+		    on own.id = acc.owner_id
+		  LEFT OUTER JOIN t_party rsp
+		    on rsp.id = acc.response_id
+		 where acc.login_id = #{loginId}
+	</select>
+	<!-- public AccountVO findById(String id); -->
+	<select id="findById" resultMap="rmAccountVO">
+		SELECT acc.*, 
+			own.name own_name,
+			rsp.id rsp_id, rsp.name rsp_name, rsp.birth rsp_birth, rsp.sex rsp_sex,
+			cp.cp_type rsp_cp_cp_type, cp.cp_val rsp_cp_cp_val,
+			role.role role_role,
+			acc.descrim rsp_acc_descrim
+		  FROM T_Account acc
+		  LEFT OUTER JOIN t_role role
+		    on role.account_id = acc.id
+		  LEFT OUTER JOIN t_party own
+		    on own.id = acc.owner_id
+		  LEFT OUTER JOIN t_party rsp
+		    on rsp.id = acc.response_id
+		  LEFT OUTER JOIN t_contact_Point cp
+		    on cp.owner_id = acc.id
+		 where acc.id = #{id}
+	</select>
+	
+	<!-- public AccountVO findWriterByWorkIdFrom(String id, String table); -->
+	<select id="findWriterByWorkIdFrom" resultMap="rmAccountVO">
+		SELECT acc.id id, acc.descrim descrim
+		  from ${table} w
+		  Left outer join t_account acc
+		    on w.writer_id = acc.id
+		 where w.id = #{id}
+	</select>
+	
+	<!-- public boolean isValidLoginId(String loginId); -->
+	<select id="isValidLoginId" resultType="boolean">
+		SELECT count(1) = 0
+		  FROM t_account
+		 where login_id = binary(#{loginId})
+	</select>
+
+	<!-- public boolean isValidNick(String nick); -->
+	<select id="isValidNick" resultType="boolean">
+		SELECT count(1) = 0
+		  FROM t_account
+		 where nick = binary(#{nick})
+	</select>
+
+	<!-- public boolean checkUniqueVal(String key, String val); -->
+	<select id="checkUniqueVal" resultType="boolean">
+		SELECT count(1) = 0
+		  FROM t_account
+		 where ${key} = binary(#{val})
+	</select>
+
+	<!-- 	public int createPerson(PersonVO person); OGNL 사용함 -->
+	<insert id="createPerson">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select NEXT_PK('s_party')
+		</selectKey>
+
+		INSERT INTO t_party(id, descrim, name, sex, birth)
+		VALUES (#{id}, 'Person', #{name}, #{sex}, #{birthDate});
+	</insert>
+	
+	<!-- 	public int createAccount(AccountVO account); -->
+	<insert id="createAccount">
+		<selectKey keyProperty="id" resultType="String"
+			order="BEFORE">
+			select NEXT_PK('s_account')
+		</selectKey>
+		INSERT INTO T_Account(id, descrim, login_id, pass_word, owner_id, response_id, nick, intro)
+		VALUES (#{id}, 'wonder', #{loginId}, #{passWord}, #{owner.id}, #{response.id}, #{nick}, #{introduction});
+	</insert>
+	
+	<!-- public int createAllCpOf(@Param("id") String id,
+			@Param("listContactPoint") List<ContactPointVO> listContactPoint); -->
+	<insert id="createAllCpOf">
+		<if test="!(listContactPoint.isEmpty())">
+			INSERT INTO T_contact_Point(owner_id, cp_type, cp_val)
+			VALUES
+			<foreach item="cp" collection="listContactPoint" separator=","
+				close=";">
+				(#{id}, #{cp.cpType}, #{cp.cpVal})
+			</foreach>
+	  </if>
+	</insert>
+	
+	<!-- 	public int createRole(@Param("account") AccountVO account, @Param("role") RoleVO role); -->
+	<insert id="createRole">
+		INSERT INTO t_role(role, account_id)
+		VALUES (#{role.role}, #{account.id});
+	</insert>
+	
+	<!-- 	public int updatePerson(@Param("person") PersonVO person); -->
+	<update id="updatePerson">
+		update t_party
+		   set name = #{person.name},
+			   birth = #{person.birthDate},
+			   sex = #{person.sex}
+		 where id = #{person.id};
+	</update>
+	
+	<!-- public int updateAccount(@Param("account") AccountVO account); -->
+	<update id="updateAccount">
+		update t_account
+		   set nick = #{account.nick},
+			   pass_word = #{account.passWord},
+			   intro = #{account.introduction}
+		 where id = #{account.id};
+	</update>
+	
+	<!-- public int reRole(String memberId, String role); -->
+	<update id="reRole">
+		update t_role
+		   set role = #{role}
+		 where account_id = #{memberId};
+	</update>
+	
+	<!-- 	public int updateStatus(String memberId, String alive);	 -->
+	<update id="updateStatus">
+		update t_account
+		   set login_code = #{loginResultCode}
+		 where id = #{memberId};
+	</update>
+	
+	
+	<!-- public int deleteMember(String id); -->
+	<update id="deleteMember">
+	update t_account
+	   set login_code = 0
+	 where id = #{id} 
+	</update>
+	<!-- public int deleteAllCpOf(String id); -->
+	<delete id="deleteAllCpOf">
+	DELETE cp.*
+	  from t_contact_point cp
+	 where cp.owner_id = #{id}
+	</delete>
+</mapper>

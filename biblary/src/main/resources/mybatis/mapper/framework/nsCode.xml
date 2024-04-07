@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.bible.library.framework.mapper.CodeMapper">
+	<resultMap id="rmCodeVO" type="www.bible.library.framework.model.CodeVO">
+		<result property="codeType" column="code_type" />
+		<result property="codeVal" column="code_val" />
+		<result property="validationRe" column="validation_re" />
+	</resultMap>
+	
+	<resultMap id="rmRemoconVO" type="www.bible.library.framework.model.RemoconVO">
+		<result property="name" column="remocon_name" />
+		<collection property="remoteKeyList" columnPrefix="key_"
+			resultMap="rmRemoteKeyVO"/>
+	</resultMap>
+	
+	<resultMap id="rmRemoteKeyVO" type="www.bible.library.framework.model.RemoteKeyVO">
+		<result property="name" column="name" />
+		<result property="info" column="info" />
+		<result property="auth" column="auth" />
+		<result property="isImmediate" column="immedi" />
+	</resultMap>
+
+	<!-- public List<CodeVO> listAll(); -->
+	<select id="listAll" resultMap="rmCodeVO">
+		select * from t_code where Code_type = 'contect point type'
+	</select>
+	
+	<!-- public RemoconVO getRemoconByName(String name); -->
+	<select id="getRemoconByName" resultMap="rmRemoconVO">
+		select *
+		  from t_sys_remocon
+		 where remocon_name = #{name}
+	</select>
+</mapper>
