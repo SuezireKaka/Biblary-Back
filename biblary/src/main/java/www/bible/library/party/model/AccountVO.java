@@ -1,8 +1,6 @@
 package www.bible.library.party.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import www.bible.library.fileattachment.model.AttachFileDTO;
 import www.bible.library.framework.model.MappedTableDef;
 import www.bible.library.framework.model.TimeEntity;
 
@@ -29,17 +26,9 @@ public class AccountVO extends TimeEntity implements MappedTableDef, UserDetails
 	
 	private int loginResultCode; // 문제없음 : 1, 탈퇴계정 : 2, 만료계정 : 3, 처벌계정 : 4
 	private Collection<RoleVO> roleList;
-	private AttachFileDTO profileImage;
 	
 	public String getMappedTableName() {
 		return "T_account";
-	}
-
-	@Override
-	public List<AttachFileDTO> getListAttachFile() {
-		List<AttachFileDTO> result = new ArrayList<>();
-		result.add(profileImage);
-		return result;
 	}
 
 	public String getKSuspectType() {
