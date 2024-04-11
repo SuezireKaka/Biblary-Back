@@ -7,12 +7,16 @@ import org.apache.ibatis.annotations.Param;
 
 import www.bible.library.bible.model.BibleVO;
 import www.bible.library.bible.model.BookVO;
+import www.bible.library.bible.model.ChapterDTO;
+import www.bible.library.bible.model.ChapterVO;
 import www.bible.library.bible.model.VerseDAO;
 
 @Mapper
 public interface BibleMapper {
 	public List<BibleVO> listAllBibles();
 	public List<BookVO> listAllBooks();
+	
+	public ChapterVO getChapterByAddress(@Param("chapter") ChapterDTO chapter);
 	
 	public boolean insertBiblesToSync(List<BibleVO> insertList);
 	

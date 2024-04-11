@@ -11,3 +11,12 @@ create table t_sys_book(
 	new_test	tinyint
 );
 create index abbr_search on t_sys_book(short_name);
+
+create table t_verse(
+	bible		varchar(64),
+	book		varchar(2),
+	chapter		tinyint,
+	verse		int,
+	contents	text,
+	primary key(bible, book, chapter, verse)
+);

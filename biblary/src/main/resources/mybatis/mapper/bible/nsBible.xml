@@ -17,6 +17,21 @@
 		<result property="isNewTestament" column="new_test" />
 	</resultMap>
 	
+	<resultMap id="rmChapterVO" type="www.bible.library.bible.model.ChapterVO">
+		<result property="chapter" column="chapter" />
+		<association property="bible" columnPrefix="bbl_"
+			resultMap="rmBibleVO" />
+		<association property="book" columnPrefix="bk_"
+			resultMap="rmBookVO" />
+		<collection property="versesList" columnPrefix="ver_"
+			resultMap="rmVerseVO" />
+	</resultMap>
+	
+	<resultMap id="rmVerseVO" type="www.bible.library.bible.model.VerseVO">
+		<result property="verse" column="verse" />
+		<result property="contents" column="contents" />
+	</resultMap>
+	
 	
 	<!-- public List<BibleVO> listAllBibles(); -->
 	<select id="listAllBibles">
@@ -29,6 +44,29 @@
 		  from t_sys_book
 	</select>
 	
+	
+	<!-- public ChapterVO getChapterByAddress(@Param("chapter") ChapterDTO chapter); -->
+	<select id="getChapterByAddress" resultMap="rmChapterVO">
+		SELECT ver.chapter chapter,
+				bbl.name bbl_name,
+					bbl.language bbl_language,
+        		bk.pos bk_pos,
+        			bk.short_name bk_short_name,
+	            	bk.full_name bk_full_name,
+	            	bk.chapter_num bk_chapter_num,
+	            ver.verse ver_verse,
+	            	ver.contents ver_contents
+		  FROM t_verse ver
+		  LEFT OUTER JOIN t_bible bbl
+		    ON ver.bible = bbl.name
+		  LEFT OUTER JOIN t_sys_book bk
+		    ON ver.book = bk.short_name
+		 WHERE ver.bible = #{chapter.bible}
+		   AND ver.book = #{chapter.book}
+		   AND ver.chapter = ${chapter.chapter}
+	</select>
+	
+	
 	<!-- public int insertBiblesToSync(List<BibleVO> insertList); -->
 	<insert id="insertBiblesToSync">
 		insert into t_bible(name, language)
@@ -39,6 +77,7 @@
          		#{bbl.language} as language
          </foreach> sub;
 	</insert>
+	
 	
 	<!-- public boolean insertVerses(@Param("bible") BibleVO bible,
 			@Param("insertList") List<VerseDAO> insertList); -->
@@ -54,6 +93,7 @@
          		#{ver.contents} as contents
          </foreach> sub;
 	</insert>
+	
 	
 	<!-- public boolean deleteBiblesToSync(List<BibleVO> deleteList); -->
 	<delete id="deleteBiblesToSync">

@@ -1,5 +1,11 @@
 package www.bible.library.bible.model;
 
-public class VerseVO {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
+@AllArgsConstructor
+public class VerseVO {
+	private int verse;
+	private String contents;
 }

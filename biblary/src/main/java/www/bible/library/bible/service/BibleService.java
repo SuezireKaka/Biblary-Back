@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import www.bible.library.bible.mapper.BibleMapper;
 import www.bible.library.bible.model.BibleVO;
 import www.bible.library.bible.model.BookVO;
+import www.bible.library.bible.model.ChapterDTO;
+import www.bible.library.bible.model.ChapterVO;
 import www.bible.library.bible.model.VerseDAO;
 import www.bible.library.bible.model.language.Language;
 
@@ -32,6 +34,15 @@ public class BibleService {
 
 	public List<BibleVO> listAllBibles() {
 		return bibleMapper.listAllBibles();
+	}
+	
+	public ChapterVO getChapterByAddress(String bible, String book, int chapter) {
+		ChapterDTO dto = ChapterDTO.builder()
+				.bible(bible)
+				.book(book)
+				.chapter(chapter)
+				.build();
+		return bibleMapper.getChapterByAddress(dto);
 	}
 	
 	public void syncBiblesFromFiles() {
