@@ -9,6 +9,7 @@ import www.bible.library.bible.model.BibleVO;
 @Mapper
 public interface BibleMapper {
 	public List<BibleVO> listAllBibles();
+	public List<String> listAllBookShortNames();
 	
 	public boolean insertBiblesToSync(List<BibleVO> insertList);
 	

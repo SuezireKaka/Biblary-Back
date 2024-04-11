@@ -14,6 +14,12 @@
 		select *
 		  from t_bible
 	</select>
+	<!-- public List<String> listAllBookShortNames(); -->
+	<select id="listAllBookShortNames">
+		select short_name
+		  from t_sys_book
+		 order by pos
+	</select>
 	
 	<!-- public int insertBiblesToSync(List<BibleVO> insertList); -->
 	<insert id="insertBiblesToSync">

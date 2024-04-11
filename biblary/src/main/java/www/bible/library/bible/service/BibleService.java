@@ -2,7 +2,7 @@ package www.bible.library.bible.service;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import www.bible.library.bible.mapper.BibleMapper;
 import www.bible.library.bible.model.BibleVO;
+import www.bible.library.bible.model.VerseDAO;
 import www.bible.library.bible.model.language.Language;
 
 @Service
@@ -25,6 +26,8 @@ public class BibleService {
 	
 	@Autowired
 	private BibleMapper bibleMapper;
+	
+	private List<String> dbBookNamesList;
 
 	public List<BibleVO> listAllBibles() {
 		return bibleMapper.listAllBibles();
@@ -42,23 +45,39 @@ public class BibleService {
 			}
 		};
 		
-		List<BibleVO> fileBiblesList = Arrays.stream(directory.list(validBibleFilter))
+		List<File> bibleFilesList = Arrays.stream(directory.listFiles(validBibleFilter))
+				.collect(Collectors.toList());
+		
+		List<BibleVO> newBiblesList = Arrays.stream(directory.list(validBibleFilter))
 				.map(this::saltName)
 				.collect(Collectors.toList());
 		List<BibleVO> oldBiblesList = listAllBibles();
 		
 		boolean success = true;
 		
-		if (! (oldBiblesList.containsAll(fileBiblesList))) {
-			List<BibleVO> insertList = fileBiblesList.stream()
+		if (! (oldBiblesList.containsAll(newBiblesList))) {
+			List<BibleVO> insertList = newBiblesList.stream()
 					.filter(bible -> ! oldBiblesList.contains(bible))
 					.collect(Collectors.toList());
 			
+			List<File> insertFilesList = bibleFilesList.stream()
+					.filter(file -> insertList.contains(saltName(file.getName())))
+					.collect(Collectors.toList());
+			
+			dbBookNamesList = bibleMapper.listAllBookShortNames();
+			
+			for (int i = 0; i < insertFilesList.size(); i++) {
+				File bibleFile = insertFilesList.get(i);
+				BibleVO bibleVo = newBiblesList.get(i);
+				
+				success &= readBible(bibleFile, bibleVo);
+			}
+			
 			success &= bibleMapper.insertBiblesToSync(insertList);
 		}
-		if (! (fileBiblesList.containsAll(oldBiblesList))) {
+		if (! (newBiblesList.containsAll(oldBiblesList))) {
 			List<BibleVO> deleteList = oldBiblesList.stream()
-					.filter(bible -> ! fileBiblesList.contains(bible))
+					.filter(bible -> ! newBiblesList.contains(bible))
 					.collect(Collectors.toList());
 			
 			success &= bibleMapper.deleteBiblesToSync(deleteList);
@@ -67,6 +86,32 @@ public class BibleService {
 		System.out.println("처리 " + (success ? "성공" : "실패"));
 	}
 	
+	private boolean readBible(File bibleFile, BibleVO bibleVo) {
+		try {
+			List<String> contents = Files.readAllLines(bibleFile.toPath());
+			
+			List<VerseDAO> insertVerseList = contents.stream()
+					.map(verse -> {
+						try {
+							VerseDAO dao = new VerseDAO(verse, dbBookNamesList);
+							dao.setBible(bibleVo);
+							return dao;
+						}
+						catch (Exception e) {
+							e.printStackTrace();
+						}
+						return null;
+					})
+					.collect(Collectors.toList());
+			
+			String check = "";
+		} catch (Exception e) {
+			System.out.println(bibleFile.getName());
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	private BibleVO saltName(String fileName) {
 		String[] splitedName = fileName.split(NAME_SEPERATOR);
 		String fullName = splitedName[splitedName.length - 1];
