@@ -32,6 +32,21 @@
          </foreach> sub;
 	</insert>
 	
+	<!-- public boolean insertVerses(@Param("bible") BibleVO bible,
+			@Param("insertList") List<VerseDAO> insertList); -->
+	<insert id="insertVerses">
+		insert into t_verse(bible, book, chapter, verse, contents)
+		select sub.*
+		  from <foreach open="(" collection="insertList" item="ver" separator=" union all " close=")">
+         	select 
+         		#{bible.name} as bible,
+         		#{ver.book} as book,
+         		#{ver.chapter} as chapter,
+         		#{ver.verse} as verse,
+         		#{ver.contents} as contents
+         </foreach> sub;
+	</insert>
+	
 	<!-- public boolean deleteBiblesToSync(List<BibleVO> deleteList); -->
 	<delete id="deleteBiblesToSync">
 		delete bbl.*

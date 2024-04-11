@@ -90,21 +90,21 @@ public class BibleService {
 		try {
 			List<String> contents = Files.readAllLines(bibleFile.toPath());
 			
-			List<VerseDAO> insertVerseList = contents.stream()
+			List<VerseDAO> insertVersesList = contents.stream()
 					.map(verse -> {
 						try {
 							VerseDAO dao = new VerseDAO(verse, dbBookNamesList);
-							dao.setBible(bibleVo);
 							return dao;
 						}
 						catch (Exception e) {
+							System.out.println(verse);
 							e.printStackTrace();
 						}
 						return null;
 					})
 					.collect(Collectors.toList());
 			
-			String check = "";
+			return bibleMapper.insertVerses(bibleVo, insertVersesList);
 		} catch (Exception e) {
 			System.out.println(bibleFile.getName());
 			e.printStackTrace();

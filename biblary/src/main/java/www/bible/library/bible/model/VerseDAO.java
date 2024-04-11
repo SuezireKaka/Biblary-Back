@@ -3,16 +3,15 @@ package www.bible.library.bible.model;
 import java.util.List;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-public class VerseDAO {	
-	@Setter
-	BibleVO bible;
-	String book;
-	int chapter;
-	int verse;
-	String contents;
+@ToString
+public class VerseDAO {
+	private String book;
+	private int chapter;
+	private int verse;
+	private String contents;
 
 	public VerseDAO(String verse, List<String> bookNamesList) throws Exception {
 		String address = verse.split(" ")[0];
