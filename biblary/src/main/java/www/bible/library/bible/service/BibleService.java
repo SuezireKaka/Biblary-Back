@@ -2,6 +2,7 @@ package www.bible.library.bible.service;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,10 +50,18 @@ public class BibleService {
 		boolean success = true;
 		
 		if (! (oldBiblesList.containsAll(fileBiblesList))) {
-			System.out.println("새 성경 추가");
+			List<BibleVO> insertList = fileBiblesList.stream()
+					.filter(bible -> ! oldBiblesList.contains(bible))
+					.collect(Collectors.toList());
+			
+			success &= bibleMapper.insertBiblesToSync(insertList);
 		}
 		if (! (fileBiblesList.containsAll(oldBiblesList))) {
-			System.out.println("기존 성경 삭제");
+			List<BibleVO> deleteList = oldBiblesList.stream()
+					.filter(bible -> ! fileBiblesList.contains(bible))
+					.collect(Collectors.toList());
+			
+			success &= bibleMapper.deleteBiblesToSync(deleteList);
 		}
 		
 		System.out.println("처리 " + (success ? "성공" : "실패"));

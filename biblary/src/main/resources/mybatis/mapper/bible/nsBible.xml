@@ -14,4 +14,25 @@
 		select *
 		  from t_bible
 	</select>
+	
+	<!-- public int insertBiblesToSync(List<BibleVO> insertList); -->
+	<insert id="insertBiblesToSync">
+		insert into t_bible(name, language)
+		select sub.*
+		  from <foreach open="(" collection="insertList" item="bbl" separator=" union all " close=")">
+         	select 
+         		#{bbl.name} as name,
+         		#{bbl.language} as language
+         </foreach> sub;
+	</insert>
+	
+	<!-- public boolean deleteBiblesToSync(List<BibleVO> deleteList); -->
+	<delete id="deleteBiblesToSync">
+		delete bbl.*
+		  from t_bible bbl
+		 where bbl.name in
+		<foreach open="(" collection="deleteList" item="bbl" separator=", " close=")">
+			#{bbl.name}
+		</foreach>;
+	</delete>
 </mapper>

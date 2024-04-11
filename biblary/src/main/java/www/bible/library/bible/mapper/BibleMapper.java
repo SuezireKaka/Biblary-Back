@@ -9,4 +9,8 @@ import www.bible.library.bible.model.BibleVO;
 @Mapper
 public interface BibleMapper {
 	public List<BibleVO> listAllBibles();
+	
+	public boolean insertBiblesToSync(List<BibleVO> insertList);
+	
+	public boolean deleteBiblesToSync(List<BibleVO> deleteList);
 }
