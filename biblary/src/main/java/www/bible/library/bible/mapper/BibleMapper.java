@@ -6,12 +6,13 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import www.bible.library.bible.model.BibleVO;
+import www.bible.library.bible.model.BookVO;
 import www.bible.library.bible.model.VerseDAO;
 
 @Mapper
 public interface BibleMapper {
 	public List<BibleVO> listAllBibles();
-	public List<String> listAllBookShortNames();
+	public List<BookVO> listAllBooks();
 	
 	public boolean insertBiblesToSync(List<BibleVO> insertList);
 	

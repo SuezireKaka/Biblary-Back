@@ -9,16 +9,24 @@
 		<result property="language" column="language" />
 	</resultMap>
 	
+	<resultMap id="rmBookVO" type="www.bible.library.bible.model.BookVO">
+		<result property="pos" column="pos" />
+		<result property="shortName" column="short_name" />
+		<result property="fullName" column="full_name" />
+		<result property="chapterNumber" column="chapter_num" />
+		<result property="isNewTestament" column="new_test" />
+	</resultMap>
+	
+	
 	<!-- public List<BibleVO> listAllBibles(); -->
 	<select id="listAllBibles">
 		select *
 		  from t_bible
 	</select>
-	<!-- public List<String> listAllBookShortNames(); -->
-	<select id="listAllBookShortNames">
-		select short_name
+	<!-- public List<BookVO> listAllBooks(); -->
+	<select id="listAllBooks">
+		select *
 		  from t_sys_book
-		 order by pos
 	</select>
 	
 	<!-- public int insertBiblesToSync(List<BibleVO> insertList); -->

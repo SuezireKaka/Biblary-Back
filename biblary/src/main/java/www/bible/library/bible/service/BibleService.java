@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import www.bible.library.bible.mapper.BibleMapper;
 import www.bible.library.bible.model.BibleVO;
+import www.bible.library.bible.model.BookVO;
 import www.bible.library.bible.model.VerseDAO;
 import www.bible.library.bible.model.language.Language;
 
@@ -27,7 +28,7 @@ public class BibleService {
 	@Autowired
 	private BibleMapper bibleMapper;
 	
-	private List<String> dbBookNamesList;
+	private List<BookVO> dbBooksList;
 
 	public List<BibleVO> listAllBibles() {
 		return bibleMapper.listAllBibles();
@@ -64,7 +65,7 @@ public class BibleService {
 					.filter(file -> insertList.contains(saltName(file.getName())))
 					.collect(Collectors.toList());
 			
-			dbBookNamesList = bibleMapper.listAllBookShortNames();
+			dbBooksList = bibleMapper.listAllBooks();
 			
 			for (int i = 0; i < insertFilesList.size(); i++) {
 				File bibleFile = insertFilesList.get(i);
@@ -93,7 +94,7 @@ public class BibleService {
 			List<VerseDAO> insertVersesList = contents.stream()
 					.map(verse -> {
 						try {
-							VerseDAO dao = new VerseDAO(verse, dbBookNamesList);
+							VerseDAO dao = new VerseDAO(verse, dbBooksList);
 							return dao;
 						}
 						catch (Exception e) {
