@@ -16,6 +16,8 @@ public interface BibleMapper {
 	public List<BibleVO> listAllBibles();
 	public List<BookVO> listAllBooks();
 	
+	public List<BookVO> listAllBooksOf(String bible);
+	
 	public ChapterVO getChapterByAddress(@Param("chapter") ChapterDTO chapter);
 	
 	public boolean insertBiblesToSync(List<BibleVO> insertList);

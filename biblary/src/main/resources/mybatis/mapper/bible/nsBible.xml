@@ -44,6 +44,14 @@
 		  from t_sys_book
 	</select>
 	
+	<!-- public List<BookVO> listAllBooksOf(String bible); -->
+	<select id="listAllBooksOf">
+		SELECT DISTINCT bk.*
+		  FROM t_sys_book bk
+		  LEFT OUTER JOIN t_verse ver
+		    ON bk.short_name = ver.book
+		 WHERE ver.bible = #{bible}
+	</select>
 	
 	<!-- public ChapterVO getChapterByAddress(@Param("chapter") ChapterDTO chapter); -->
 	<select id="getChapterByAddress" resultMap="rmChapterVO">

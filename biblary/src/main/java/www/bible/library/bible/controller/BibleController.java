@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import www.bible.library.bible.model.BibleVO;
+import www.bible.library.bible.model.BookVO;
 import www.bible.library.bible.model.ChapterVO;
 import www.bible.library.bible.service.BibleService;
 
@@ -24,6 +25,13 @@ public class BibleController {
 	@GetMapping("/anonymous/listAllBibles")
 	public ResponseEntity<List<BibleVO>> listAllBibles() {
 		List<BibleVO> result = bibleService.listAllBibles();
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	// /bible/anonymous/listAllBooksOf/ASV
+	@GetMapping("/anonymous/listAllBooksOf/{bible}")
+	public ResponseEntity<List<BookVO>> listAllBooksOf(@PathVariable String bible) {
+		List<BookVO> result = bibleService.listAllBooksOf(bible);
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	

@@ -36,6 +36,10 @@ public class BibleService {
 		return bibleMapper.listAllBibles();
 	}
 	
+	public List<BookVO> listAllBooksOf(String bible) {
+		return bibleMapper.listAllBooksOf(bible);
+	}
+	
 	public ChapterVO getChapterByAddress(String bible, String book, int chapter) {
 		ChapterDTO dto = ChapterDTO.builder()
 				.bible(bible)
@@ -44,6 +48,8 @@ public class BibleService {
 				.build();
 		return bibleMapper.getChapterByAddress(dto);
 	}
+	
+	
 	
 	public void syncBiblesFromFiles() {
 		File directory = new File(bibleAddress);
