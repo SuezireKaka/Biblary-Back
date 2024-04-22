@@ -20,3 +20,17 @@ create table t_verse(
 	contents	text,
 	primary key(bible, book, chapter, verse)
 );
+
+create table t_verse_strong(
+	book		varchar(2),
+	chapter		tinyint,
+	verse		int,
+	pos			int,
+	code_num	int,
+	code_type	char(1),
+	primary key(book, chapter, verse)
+)
+
+
+
+
