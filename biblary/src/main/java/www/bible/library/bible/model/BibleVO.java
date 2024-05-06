@@ -1,18 +1,17 @@
 package www.bible.library.bible.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import www.bible.library.bible.model.language.Language;
+import lombok.experimental.SuperBuilder;
+import www.bible.library.bible.model.language.LanguageVO;
 
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"name"})
 public class BibleVO {
 	private String name;
-	private Language language;
+	private LanguageVO language;
+	private boolean parsed;
 }

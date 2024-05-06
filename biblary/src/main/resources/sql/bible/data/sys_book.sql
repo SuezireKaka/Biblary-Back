@@ -1,4 +1,4 @@
-insert into t_sys_book(pos, short_name, full_name, suffix, chapter_num, new_test)
+insert into sys_book(pos, short_name, full_name, suffix, chapter_num, new_test)
 values (1, '창', '창세기', '장', 50, 0),
 (2, '출', '출애굽기', '장', 40, 0),
 (3, '레', '레위기', '장', 27, 0),

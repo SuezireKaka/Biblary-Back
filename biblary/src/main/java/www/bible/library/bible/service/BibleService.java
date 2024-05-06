@@ -3,6 +3,7 @@ package www.bible.library.bible.service;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +18,6 @@ import www.bible.library.bible.model.BookVO;
 import www.bible.library.bible.model.ChapterDTO;
 import www.bible.library.bible.model.ChapterVO;
 import www.bible.library.bible.model.VerseDAO;
-import www.bible.library.bible.model.language.Language;
 
 @Service
 public class BibleService {
@@ -57,9 +57,9 @@ public class BibleService {
 		FilenameFilter validBibleFilter = new FilenameFilter() {
 			public boolean accept(File f, String fileName) {
 				String[] splitedName = fileName.split(NAME_SEPERATOR);
-				// A_B.txt꼴일 것
+				// A_B_C.txt꼴일 것
 				return fileName.endsWith(VALID_EXTENSION)
-					&& splitedName.length == 2;
+					&& splitedName.length == 3;
 			}
 		};
 		
@@ -109,6 +109,7 @@ public class BibleService {
 			List<String> contents = Files.readAllLines(bibleFile.toPath());
 			
 			List<VerseDAO> insertVersesList = contents.stream()
+					.filter(verse -> verse.length() > 7)
 					.map(verse -> {
 						try {
 							VerseDAO dao = new VerseDAO(verse, dbBooksList);
@@ -132,12 +133,18 @@ public class BibleService {
 
 	private BibleVO saltName(String fileName) {
 		String[] splitedName = fileName.split(NAME_SEPERATOR);
-		String fullName = splitedName[splitedName.length - 1];
-		String bibleName = fullName
-				.substring(0, fullName.length() - VALID_EXTENSION.length());
+		String bibleName = splitedName[splitedName.length - 2];
+		
+		String parseString = splitedName[splitedName.length - 1];
+		
+		int parsed = Integer.valueOf(
+				parseString.substring(0, parseString.length() - VALID_EXTENSION.length()));
+		
+		
 		BibleVO result = BibleVO.builder()
 				.name(bibleName)
-				.language(Language.findWithString(splitedName[0]))
+				.language(bibleMapper.getLanguage(splitedName[0]))
+				.parsed(parsed % 2 != 0)
 				.build();
 		
 		return result;

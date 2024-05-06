@@ -6,7 +6,14 @@
 <mapper namespace="www.bible.library.bible.mapper.BibleMapper">
 	<resultMap id="rmBibleVO" type="www.bible.library.bible.model.BibleVO">
 		<result property="name" column="name" />
-		<result property="language" column="language" />
+		<association property="language" columnPrefix="lang_"
+			resultMap="rmLanguageVO" />
+	</resultMap>
+	
+	<resultMap id="rmLanguageVO" type="www.bible.library.bible.model.language.LanguageVO">
+		<result property="language" column="lang" />
+		<result property="korean" column="korean" />
+		<result property="isOriginal" column="original" />
 	</resultMap>
 	
 	<resultMap id="rmBookVO" type="www.bible.library.bible.model.BookVO">
@@ -42,7 +49,7 @@
 	<!-- public List<BookVO> listAllBooks(); -->
 	<select id="listAllBooks" resultMap="rmBookVO">
 		select *
-		  from t_sys_book
+		  from sys_book
 	</select>
 	
 	<!-- public List<BookVO> listAllBooksOf(String bible); -->
@@ -53,10 +60,17 @@
 	            bk.suffix suffix,
 	            bk.chapter_num chapter_num,
 	            bk.new_test new_test
-		  FROM t_sys_book bk
+		  FROM sys_book bk
 		  LEFT OUTER JOIN t_verse ver
 		    ON bk.short_name = ver.book
 		 WHERE ver.bible = #{bible}
+	</select>
+	
+	<!-- public LanguageVO getLanguage(String language); -->
+	<select id="getLanguage" resultMap="rmLanguageVO">
+		select *
+		  from sys_lang
+		 where lang = #{language}
 	</select>
 	
 	<!-- public ChapterVO getChapterByAddress(@Param("chapter") ChapterDTO chapter); -->
@@ -75,7 +89,7 @@
 		  FROM t_verse ver
 		  LEFT OUTER JOIN t_bible bbl
 		    ON ver.bible = bbl.name
-		  LEFT OUTER JOIN t_sys_book bk
+		  LEFT OUTER JOIN sys_book bk
 		    ON ver.book = bk.short_name
 		 WHERE ver.bible = #{chapter.bible}
 		   AND ver.book = #{chapter.book}
@@ -85,12 +99,13 @@
 	
 	<!-- public int insertBiblesToSync(List<BibleVO> insertList); -->
 	<insert id="insertBiblesToSync">
-		insert into t_bible(name, language)
+		insert into t_bible(name, lang, parsed)
 		select sub.*
 		  from <foreach open="(" collection="insertList" item="bbl" separator=" union all " close=")">
          	select 
          		#{bbl.name} as name,
-         		#{bbl.language} as language
+         		#{bbl.language.language} as lang,
+         		${bbl.parsed}
          </foreach> sub;
 	</insert>
 	

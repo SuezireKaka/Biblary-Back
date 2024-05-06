@@ -11,7 +11,7 @@ public class SchedulerService {
 	@Autowired
 	private BibleService bibleService;
 	
-	@Scheduled(cron = "0 0 0 * * *")
+	@Scheduled(cron = "* * * * * *")
 	public void syncBibleSchedule() {
 		bibleService.syncBiblesFromFiles();
 	}
