@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class LanguageVO {
-	private String language;
+	private String name;
 	private String korean;
 	private boolean isOriginal;
 }

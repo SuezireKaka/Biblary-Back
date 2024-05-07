@@ -6,12 +6,13 @@
 <mapper namespace="www.bible.library.bible.mapper.BibleMapper">
 	<resultMap id="rmBibleVO" type="www.bible.library.bible.model.BibleVO">
 		<result property="name" column="name" />
-		<association property="language" columnPrefix="lang_"
+		<result property="parsed" column="parsed" />
+		<association property="language" columnPrefix="lng_"
 			resultMap="rmLanguageVO" />
 	</resultMap>
 	
 	<resultMap id="rmLanguageVO" type="www.bible.library.bible.model.language.LanguageVO">
-		<result property="language" column="lang" />
+		<result property="name" column="lang" />
 		<result property="korean" column="korean" />
 		<result property="isOriginal" column="original" />
 	</resultMap>
@@ -42,10 +43,15 @@
 	
 	
 	<!-- public List<BibleVO> listAllBibles(); -->
-	<select id="listAllBibles">
-		select *
-		  from t_bible
+	<select id="listAllBibles" resultMap="rmBibleVO">
+		select bbl.name name, 
+				lng.lang lng_lang, lng.korean lng_korean, lng.original lng_original,
+				bbl.parsed parsed
+		  from t_bible bbl
+		  left outer join sys_lang lng
+		    on bbl.lang = lng.lang
 	</select>
+	
 	<!-- public List<BookVO> listAllBooks(); -->
 	<select id="listAllBooks" resultMap="rmBookVO">
 		select *
@@ -54,17 +60,18 @@
 	
 	<!-- public List<BookVO> listAllBooksOf(String bible); -->
 	<select id="listAllBooksOf" resultMap="rmBookVO">
-		SELECT DISTINCT bk.pos pos,
+		select distinct bk.pos pos,
         		bk.short_name short_name,
 	            bk.full_name full_name,
 	            bk.suffix suffix,
 	            bk.chapter_num chapter_num,
 	            bk.new_test new_test
-		  FROM sys_book bk
-		  LEFT OUTER JOIN t_verse ver
-		    ON bk.short_name = ver.book
-		 WHERE ver.bible = #{bible}
+		  from sys_book bk
+		  left outer join t_verse ver
+		    on bk.short_name = ver.book
+		 where ver.bible = #{bible}
 	</select>
+	
 	
 	<!-- public LanguageVO getLanguage(String language); -->
 	<select id="getLanguage" resultMap="rmLanguageVO">
@@ -75,9 +82,12 @@
 	
 	<!-- public ChapterVO getChapterByAddress(@Param("chapter") ChapterDTO chapter); -->
 	<select id="getChapterByAddress" resultMap="rmChapterVO">
-		SELECT ver.chapter chapter,
+		select ver.chapter chapter,
 				bbl.name bbl_name,
-					bbl.language bbl_language,
+					lng.lang bbl_lng_lang,
+					lng.korean bbl_lng_korean,
+					lng.original bbl_lng_original,
+				bbl.parsed bbl_parsed,
         		bk.pos bk_pos,
         			bk.short_name bk_short_name,
 	            	bk.full_name bk_full_name,
@@ -86,14 +96,16 @@
 	            	bk.new_test bk_new_test,
 	            ver.verse ver_verse,
 	            	ver.contents ver_contents
-		  FROM t_verse ver
-		  LEFT OUTER JOIN t_bible bbl
-		    ON ver.bible = bbl.name
-		  LEFT OUTER JOIN sys_book bk
-		    ON ver.book = bk.short_name
-		 WHERE ver.bible = #{chapter.bible}
-		   AND ver.book = #{chapter.book}
-		   AND ver.chapter = ${chapter.chapter}
+		  from t_verse ver
+		  left outer join t_bible bbl
+		    on ver.bible = bbl.name
+		  left outer join sys_lang lng
+		    on bbl.lang = lng.lang
+		  left outer join sys_book bk
+		    on ver.book = bk.short_name
+		 where ver.bible = #{chapter.bible}
+		   and ver.book = #{chapter.book}
+		   and ver.chapter = ${chapter.chapter}
 	</select>
 	
 	

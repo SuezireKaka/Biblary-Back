@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookVO {
-	public static final int OLD_TESTAMENT = 0;
-	public static final int NEW_TESTAMENT = 1;
-	
 	private int pos;
 	private String shortName;
 	private String fullName;
