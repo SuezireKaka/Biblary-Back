@@ -1,13 +1,13 @@
 package www.bible.library.security.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /** 회원가입 결과 정보 */
 @Data
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 public class SignUpResultDto {
 
 	private boolean success;

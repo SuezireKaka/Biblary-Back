@@ -20,7 +20,6 @@ import www.bible.library.party.model.PartyVO;
 import www.bible.library.party.model.PersonVO;
 import www.bible.library.party.model.RoleVO;
 import www.bible.library.party.model.SignUpDto;
-import www.bible.library.party.model.WonderAccountVO;
 
 
 @Service
@@ -38,8 +37,8 @@ public class PartyService implements UserDetailsService {
 		
 		for (AccountVO account : listResult) {
 			PartyVO response = account.getResponse();
-			List<ContactPointVO> contacts = partyMapper.listAllCpOf(response.getId());
-			response.setContactPointList(contacts);
+			List<ContactPointVO> contactsList = partyMapper.listAllCpOf(response.getId());
+			response.addContactPointList(contactsList);
 		}
 
 		long dataCount = partyMapper.getFoundRows();
@@ -50,35 +49,12 @@ public class PartyService implements UserDetailsService {
 	
 	public AccountVO findById(String id) {
 		AccountVO res = partyMapper.findById(id);
-		PersonVO response = res.getResponse();
-		List<ContactPointVO> contacts = partyMapper.listAllCpOf(response.getId());
-		response.setContactPointList(contacts);
-		res.setResponse(response);
 	
 		return res;
-	}
-	
-	public AccountVO findByLoginId(String loginId) {
-		return partyMapper.findByLoginId(loginId);
 	}
 	
 	public AccountVO findWriterByWorkIdFrom(String id, String table) {
 		return partyMapper.findWriterByWorkIdFrom(id, table);
-	}
-
-	public int createOrganization(OrganizationVO organization) {
-		return partyMapper.createOrganization(organization);
-	}
-
-	public int createManager(List<AccountVO> accountList) {
-		int res = 1;
-		for (AccountVO account : accountList) {
-			res = partyMapper.createManager(account);
-			if (res == 0) {
-				return 0;
-			}
-		}
-		return res;
 	}
 	
 	public boolean checkLoginId(String loginId) {
@@ -101,8 +77,8 @@ public class PartyService implements UserDetailsService {
 				.sex(signUpRequest.getSex())
 				.birthDate(signUpRequest.getBirthDate())
 				.build();
-		WonderAccountVO account = WonderAccountVO.builder()
-				.loginId(signUpRequest.getLoginId())
+		AccountVO account = AccountVO.builder()
+				.id(signUpRequest.getLoginId())
 				.passWord(signUpRequest.getPassWord())
 				.nick(signUpRequest.getNick())
 				.introduction(signUpRequest.getIntroduction())
@@ -113,9 +89,11 @@ public class PartyService implements UserDetailsService {
 		account.encodePswd(pswdEnc);
 		// accountId가 비어있으면 생성 아니면 수정
 		if (ObjectUtils.isEmpty(signUpRequest.getAccountId())) {
+			RoleVO defaultRole = new RoleVO();
+			
 			cnt &= partyMapper.createPerson(person);
 			cnt &= partyMapper.createAccount(account)
-					& partyMapper.createRole(account, new RoleVO("reader"));
+					& partyMapper.createRole(account, defaultRole);
 			if (signUpRequest.getListContactPoint().size() > 0) {
 				cnt &= partyMapper.createAllCpOf(person.getId(), signUpRequest.getListContactPoint());
 			}

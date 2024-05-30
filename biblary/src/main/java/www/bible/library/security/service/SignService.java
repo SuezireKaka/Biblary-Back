@@ -12,7 +12,7 @@ import www.bible.library.framework.CommonResponse;
 import www.bible.library.framework.exception.BusinessException;
 import www.bible.library.framework.exception.ErrorCode;
 import www.bible.library.party.mapper.PartyMapper;
-import www.bible.library.party.model.WonderAccountVO;
+import www.bible.library.party.model.AccountVO;
 import www.bible.library.security.config.JwtTokenProvider;
 import www.bible.library.security.model.SignInDTO;
 import www.bible.library.security.model.SignInResultDto;
@@ -36,7 +36,7 @@ public class SignService {
 	/** 로그인 처리 */
 	public SignInResultDto signIn(SignInDTO signInDTO) {
 		LOGGER.info("[getSignInResult] signDataHandler 로 회원 정보 요청");
-		WonderAccountVO user = partyMapper.findByLoginId(signInDTO.getLoginId());
+		AccountVO user = partyMapper.findById(signInDTO.getLoginId());
 
 		LOGGER.info("[getSignInResult] 패스워드 비교 수행");
 		//User없는 상황 및 암호 오류 상황을 명확히 구분하여 알려주지 않음. 보안성 강화
@@ -48,7 +48,7 @@ public class SignService {
 		LOGGER.info("[getSignInResult] SignInResultDto 객체 생성");
 		SignInResultDto signInResultDto = SignInResultDto.builder()
 				.token(jwtTokenProvider.createToken(
-						String.valueOf(user.getLoginId()),
+						String.valueOf(user.getId()),
 						user.getAuthorities().stream()
 						.map(GrantedAuthority::getAuthority)
 						.collect(Collectors.toList())))
@@ -56,10 +56,7 @@ public class SignService {
 						.map(GrantedAuthority::getAuthority)
 						.collect(Collectors.toList()))
 				.userId(user.getId())
-				.userLoginId(user.getLoginId())
 				.userNick(user.getNick())
-				.accountType(WonderAccountVO.ACCOUNT_TYPE)
-				.loginResultCode(user.getLoginResultCode())
 				.build();
 
 		LOGGER.info("[getSignInResult] SignInResultDto 객체에 값 주입");

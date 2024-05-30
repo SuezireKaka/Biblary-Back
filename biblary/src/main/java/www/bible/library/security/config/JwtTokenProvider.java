@@ -18,7 +18,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import www.bible.library.party.mapper.PartyMapper;
-import www.bible.library.party.model.WonderAccountVO;
+import www.bible.library.party.model.AccountVO;
 
 /**
  * JWT 토큰을 생성하고 유효성을 검증하는 컴포넌트 클래스 JWT 는 여러 암호화 알고리즘을 제공하고 알고리즘과 비밀키를 가지고 토큰을 생성
@@ -36,7 +36,7 @@ public class JwtTokenProvider {
 	private final PartyMapper partyMapper; // Spring Security 에서 제공하는 서비스 레이어. PartyService
 
 	@Value("${springboot.jwt.secret}") // 비밀키
-	private String secretKey = "secretKey00";
+	private String secretKey;
 	private final long tokenValidMillisecond = 24000L * 60 * 60; // 24시간 토큰 유효
 
 	/**
@@ -44,9 +44,7 @@ public class JwtTokenProvider {
 	 */
 	@PostConstruct // 객체 만든 이후 연이어 수행
 	protected void init() {
-		//System.out.println(secretKey);
 		secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
-		//System.out.println(secretKey);
 	}
 
 	// 예제 13.12
@@ -67,15 +65,20 @@ public class JwtTokenProvider {
 	// 예제 13.13
 	// JWT 토큰으로 인증 정보 조회
 	public Authentication getAuthentication(String token) {
-		WonderAccountVO wonderDetails = partyMapper.findByLoginId(this.getUsername(token));
-		return new UsernamePasswordAuthenticationToken(wonderDetails, wonderDetails.getAuthorities());
+		AccountVO accountDetails = partyMapper.findById(this.getUsername(token));
+		return new UsernamePasswordAuthenticationToken(accountDetails,
+				accountDetails.getAuthorities());
 	}
 
 	// 예제 13.14
 	// JWT 토큰에서 회원 구별 정보 추출
 	public String getUsername(String token) {
 		//비밀스러운 나만의 비밀키로 (개인키) JWT 내용을 볼 수 있어
-		String info = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+		String info = Jwts.parser()
+				.setSigningKey(secretKey)
+				.parseClaimsJws(token)
+				.getBody()
+				.getSubject();
 		return info;
 	}
 
@@ -101,7 +104,9 @@ public class JwtTokenProvider {
 	// JWT 토큰의 유효성 + 만료일 체크
 	public boolean validateToken(String token) {
 		try {
-			Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+			Jws<Claims> claims = Jwts.parser()
+					.setSigningKey(secretKey)
+					.parseClaimsJws(token);
 			return !claims.getBody().getExpiration().before(new Date());
 		} catch (Exception e) {
 			return false;

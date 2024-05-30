@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import www.bible.library.framework.model.DreamPair;
 import www.bible.library.framework.model.PagingDTO;
 import www.bible.library.party.model.AccountVO;
-import www.bible.library.party.model.OrganizationVO;
 import www.bible.library.party.model.SignUpDto;
 import www.bible.library.party.service.PartyService;
 import www.bible.library.security.anno.ForManagerOrSelf;
@@ -48,16 +47,6 @@ public class PartyController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
-	@PostMapping("/createOrganization")
-	public ResponseEntity<Integer> createOrganization(OrganizationVO organization) {
-		return ResponseEntity.ok(partyService.createOrganization(organization));
-	}
-
-	@PostMapping("/createManager")
-	public ResponseEntity<Integer> createManager(@RequestBody List<AccountVO> accountList) {
-		return ResponseEntity.ok(partyService.createManager(accountList));
-	}
-
 	// /party/anonymous/checkLoginId?loginId=hgghg
 	@GetMapping("/anonymous/checkLoginId")
 	public ResponseEntity<Boolean> checkLoginId(String loginId) {
@@ -85,7 +74,6 @@ public class PartyController {
 	// /party/updateMember
 	@PostMapping("/updateMember")
 	@PreAuthorize("hasAnyAuthority('reader', 'writer','manager', 'admin')")
-	// @ForAccountType(accountType = "원더") - 이거 돌아가게 만들고 싶다아
 	public ResponseEntity<Integer> updateMember(@AuthenticationPrincipal AccountVO owner,
 			@RequestBody SignUpDto signUpRequest) {
 		return ResponseEntity.ok(partyService.mngMember(signUpRequest));

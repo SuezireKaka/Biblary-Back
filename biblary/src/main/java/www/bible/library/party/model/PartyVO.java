@@ -8,12 +8,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import www.bible.library.framework.model.Entity;
 
 @Getter
-@Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,5 +23,9 @@ public class PartyVO extends Entity {
 	
 	public void addCP(ContactPointVO cp) {
 		contactPointList.add(cp);
+	}
+
+	public void addContactPointList(List<ContactPointVO> contactsList) {
+		contactPointList.addAll(contactsList);
 	}
 }

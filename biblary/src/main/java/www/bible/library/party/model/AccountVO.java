@@ -1,43 +1,45 @@
 package www.bible.library.party.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import www.bible.library.framework.model.MappedTableDef;
 import www.bible.library.framework.model.TimeEntity;
 
-@SuperBuilder
 @Getter
-@Setter
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-public class AccountVO extends TimeEntity implements MappedTableDef, UserDetails {
-
+@JsonIgnoreProperties({"passWord"})
+public class AccountVO extends TimeEntity implements UserDetails {
+	private static final long serialVersionUID = 1L;
+	
 	private OrganizationVO owner;	//주인으로서
 	private PersonVO response;	//대상으로서
 	
-	private int loginResultCode; // 문제없음 : 1, 탈퇴계정 : 2, 만료계정 : 3, 처벌계정 : 4
-	private Collection<RoleVO> roleList;
+	private String passWord;
 	
-	public String getMappedTableName() {
-		return "T_account";
-	}
+	private String nick;
+	private String introduction;
+	
+	private List<RoleVO> roleList;
 
 	public String getKSuspectType() {
 		return "사용자";
 	}
 
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.getRoleList()
-				.stream()
+		return this.roleList.stream()
 				.map(RoleVO::getAuthority)
 				.collect(Collectors.toList());
 	}
@@ -64,6 +66,10 @@ public class AccountVO extends TimeEntity implements MappedTableDef, UserDetails
 
 	public boolean isEnabled() {
 		return true;
+	}
+
+	public void encodePswd(PasswordEncoder pswdEnc) {
+		this.passWord = pswdEnc.encode(passWord);	
 	}
 
 }
