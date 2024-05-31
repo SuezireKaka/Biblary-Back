@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 public class CodeVO {
 	private String codeType;
 	private String codeVal;
-	private String validationRe;
+	private String validRegex;
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -14,7 +13,6 @@ import www.bible.library.framework.model.Entity;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PartyVO extends Entity {	
 	private String name;
@@ -25,7 +23,7 @@ public class PartyVO extends Entity {
 		contactPointList.add(cp);
 	}
 
-	public void addContactPointList(List<ContactPointVO> contactsList) {
+	public void addAllCPs(List<ContactPointVO> contactsList) {
 		contactPointList.addAll(contactsList);
 	}
 }

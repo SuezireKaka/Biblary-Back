@@ -1,4 +1,4 @@
-create table t_account {
+create table t_account ()
 	id				varchar(255),
 	pass_word		varchar(255),
 	owner_id		char(4),
@@ -7,4 +7,4 @@ create table t_account {
 	alive			tinyint,
 	reg_dt			timestamp default current_timestamp(),
 	upt_dt			timestamp default current_timestamp() on update current_timestamp()
-}
+)

@@ -36,9 +36,9 @@ public class PartyService implements UserDetailsService {
 		List<AccountVO> listResult = partyMapper.listAllAccount(ownerId, paging);
 		
 		for (AccountVO account : listResult) {
-			PartyVO response = account.getResponse();
-			List<ContactPointVO> contactsList = partyMapper.listAllCpOf(response.getId());
-			response.addContactPointList(contactsList);
+			PartyVO owner = account.getOwner();
+			List<ContactPointVO> contactsList = partyMapper.listAllCpOf(owner.getId());
+			owner.addAllCPs(contactsList);
 		}
 
 		long dataCount = partyMapper.getFoundRows();
@@ -63,10 +63,6 @@ public class PartyService implements UserDetailsService {
 	public boolean checkNick(String nick) {
 		return partyMapper.isValidNick(nick);
 	}
-
-	public boolean checkUniqueVal(String key, String val) {
-		return partyMapper.checkUniqueVal(key, val);
-	}
 	
 	/** 회원 가입 */
 	public int mngMember(SignUpDto signUpRequest) {
@@ -82,8 +78,8 @@ public class PartyService implements UserDetailsService {
 				.passWord(signUpRequest.getPassWord())
 				.nick(signUpRequest.getNick())
 				.introduction(signUpRequest.getIntroduction())
-				.owner(new OrganizationVO("0000"))
-				.response(person)
+				.provider(OrganizationVO.BIBLARY_PROXY)
+				.owner(person)
 				.build();
 		int cnt = 1;
 		account.encodePswd(pswdEnc);
