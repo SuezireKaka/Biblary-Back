@@ -42,12 +42,6 @@
 			resultMap="rmActVO">
 		</collection>
 	</resultMap>
-	
-	<resultMap id="rmActVO"
-		type="www.bible.library.party.model.ActVO">
-		<id property="action" column="action" />
-		<result property="manual" column="manual" />
-	</resultMap>
 
 	
 </mapper>

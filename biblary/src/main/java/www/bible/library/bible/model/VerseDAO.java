@@ -45,7 +45,7 @@ public class VerseDAO {
 				BookVO findBook = dbBooksList.get(mayBookIntName - 1);
 				this.book = findBook.getShortName();
 				this.chapter = Integer.valueOf(splitedAddress[0].substring(2));
-			}
+			} 
 			else {
 				throw new Exception("Can't find book name");
 			}

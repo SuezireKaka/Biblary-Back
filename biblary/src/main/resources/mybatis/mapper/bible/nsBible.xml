@@ -127,7 +127,9 @@
 	<insert id="insertVerses">
 		insert into t_verse(bible, book, chapter, verse, contents)
 		select sub.*
-		  from <foreach open="(" collection="insertList" item="ver" separator=" union all " close=")">
+		  from <foreach open="("
+		  		collection="insertList" item="ver" separator=" union all "
+		  		close=")">
          	select 
          		#{bible.name} as bible,
          		#{ver.book} as book,
